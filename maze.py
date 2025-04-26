@@ -1,8 +1,9 @@
-from cell import Cell
+import random
 import time
+from cell import Cell
 
 class Maze:
-    def __init__(self, x1, y1, num_rows, num_cols, cell_size_x, cell_size_y, win):
+    def __init__(self, x1, y1, num_rows, num_cols, cell_size_x, cell_size_y, win=None, seed=None):
         self._x1 = x1
         self._y1 = y1
         self._num_rows = num_rows
@@ -10,9 +11,12 @@ class Maze:
         self._cell_size_x = cell_size_x
         self._cell_size_y = cell_size_y
         self._win = win
+        if seed is not None:
+            self._seed = random.seed(seed)
         self._cells = []
 
         self._create_cells()
+        self._break_entrance_and_exit()
 
     def _create_cells(self):
         for i in range(0, self._num_cols):
@@ -33,5 +37,36 @@ class Maze:
         self._animate()
 
     def _animate(self):
+        if self._win is None:
+            return
         self._win.redraw()
         time.sleep(0.005)
+
+    def _break_entrance_and_exit(self):
+        entrance = self._cells[0][0]
+        entrance.has_top_wall = False
+        entrance.draw()
+
+        exit = self._cells[self._num_cols - 1][self._num_rows - 1]
+        exit.has_bottom_wall = False
+        exit.draw()
+        self._animate()
+
+    def _break_walls_r(self, i, j):
+        self._cells[i][j].visited = True
+        while True:
+            neighbors = []
+            if i > 0 and not self._cells[i - 1][j].visited:
+                neighbors.append(self._cells[i - 1][j])
+            if j > 0 and not self._cells[i][j - 1].visited:
+                neighbors.append(self._cells[i][j - 1])
+            if i < self._num_cols and not self._cells[i + 1][j].visited:
+                neighbors.append(self._cells[i + 1][j])
+            if j < self._num_rows and not self._cells[i][j + 1].visited:
+                neighbors.append(self._cells[i][j + 1])
+
+            if len(neighbors) == 0:
+                break
+
+            next_index = random.randint(0, len(neighbors) - 1)
+            next_cell = neighbors[next_index]
