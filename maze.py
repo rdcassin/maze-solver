@@ -17,6 +17,8 @@ class Maze:
 
         self._create_cells()
         self._break_entrance_and_exit()
+        self._break_walls_r(0, 0)
+        self._reset_cells_visited()
 
     def _create_cells(self):
         for i in range(0, self._num_cols):
@@ -29,10 +31,10 @@ class Maze:
                 self._draw_cell(i, j)
 
     def _draw_cell(self, i, j):
-        self._cells[i][j].x1 = self._x1 + i * self._cell_size_x
-        self._cells[i][j].y1 = self._y1 + j * self._cell_size_y
-        self._cells[i][j].x2 = self._x1 + (i + 1) * self._cell_size_x
-        self._cells[i][j].y2 = self._y1 + (j + 1) * self._cell_size_y
+        self._cells[i][j]._x1 = self._x1 + i * self._cell_size_x
+        self._cells[i][j]._y1 = self._y1 + j * self._cell_size_y
+        self._cells[i][j]._x2 = self._x1 + (i + 1) * self._cell_size_x
+        self._cells[i][j]._y2 = self._y1 + (j + 1) * self._cell_size_y
         self._cells[i][j].draw()
         self._animate()
 
@@ -60,13 +62,42 @@ class Maze:
                 neighbors.append(self._cells[i - 1][j])
             if j > 0 and not self._cells[i][j - 1].visited:
                 neighbors.append(self._cells[i][j - 1])
-            if i < self._num_cols and not self._cells[i + 1][j].visited:
+            if i < self._num_cols - 1 and not self._cells[i + 1][j].visited:
                 neighbors.append(self._cells[i + 1][j])
-            if j < self._num_rows and not self._cells[i][j + 1].visited:
+            if j < self._num_rows - 1 and not self._cells[i][j + 1].visited:
                 neighbors.append(self._cells[i][j + 1])
 
             if len(neighbors) == 0:
-                break
+                self._draw_cell(i, j)
+                return
 
             next_index = random.randint(0, len(neighbors) - 1)
             next_cell = neighbors[next_index]
+
+            if next_cell._x1 < self._cells[i][j]._x1:
+                self._cells[i][j].has_left_wall = False
+                next_cell.has_right_wall = False
+                next_i = i - 1
+                next_j = j
+            elif next_cell._y1 < self._cells[i][j]._y1:
+                self._cells[i][j].has_top_wall = False
+                next_cell.has_bottom_wall = False
+                next_i = i
+                next_j = j - 1
+            elif next_cell._x1 > self._cells[i][j]._x1:
+                self._cells[i][j].has_right_wall = False
+                next_cell.has_left_wall = False
+                next_i = i + 1
+                next_j = j
+            elif next_cell._y1 > self._cells[i][j]._y1:
+                self._cells[i][j].has_bottom_wall = False
+                next_cell.has_top_wall = False
+                next_i = i
+                next_j = j + 1
+
+            self._break_walls_r(next_i, next_j)
+
+    def _reset_cells_visited(self):
+        for i in range(0, self._num_cols):
+            for j in range(0, self._num_rows):
+                self._cells[i][j].visited = False
