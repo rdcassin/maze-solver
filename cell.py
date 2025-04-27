@@ -42,23 +42,23 @@ class Cell:
             self._win.draw_line(line, "white")
 
     def draw_move(self, to_cell, undo=False):
-        line = Line(Point((self._x1 + self._x2) / 2, (self._y1 + self._y2) / 2), Point((to_cell.x1 + to_cell.x2) / 2, (to_cell.y1 + to_cell.y2) / 2))
+        line = Line(Point((self._x1 + self._x2) / 2, (self._y1 + self._y2) / 2), Point((to_cell._x1 + to_cell._x2) / 2, (to_cell._y1 + to_cell._y2) / 2))
         if undo:
-            color = "red"
-        else:
             color = "grey"
+        else:
+            color = "red"
             
-        if self._x1 > to_cell.x1 and self._y1 == to_cell.y1:
+        if self._x1 > to_cell._x1 and self._y1 == to_cell._y1:
             if self.has_left_wall or to_cell.has_right_wall:
                 return
-        elif self._x1 == to_cell.x1 and self._y1 > to_cell.y1:
-            if self.has_left_wall or to_cell.has_right_wall:
+        elif self._x1 == to_cell._x1 and self._y1 > to_cell._y1:
+            if self.has_top_wall or to_cell.has_bottom_wall:
                 return
-        elif self._x1 < to_cell.x1 and self._y1 == to_cell.y1:
-            if self.has_left_wall or to_cell.has_right_wall:
+        elif self._x1 < to_cell._x1 and self._y1 == to_cell._y1:
+            if self.has_right_wall or to_cell.has_left_wall:
                 return
-        elif self._x1 == to_cell.x1 and self._y1 < to_cell.y1:
-            if self.has_left_wall or to_cell.has_right_wall:
+        elif self._x1 == to_cell._x1 and self._y1 < to_cell._y1:
+            if self.has_bottom_wall or to_cell.has_top_wall:
                 return
         else:
             return
